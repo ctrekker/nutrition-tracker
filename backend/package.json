@@ -12,6 +12,7 @@
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "nodemon": "~2.0.4",
+    "shortid": "^2.2.15",
     "sqlite3": "^5.0.0",
     "twig": "~0.10.3"
   }
