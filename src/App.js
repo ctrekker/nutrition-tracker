@@ -13,6 +13,8 @@ function App() {
   const [ nutrientValues, setNutrientValues ] = useState([]);
   const [ foodEntries, setFoodEntries ] = useState([]);
   
+  const [ refetchFoodEntries, setRefetchFoodEntries ] = useState(false);
+  
   useEffect(() => {
     const fetchFoods = async () => {
       const foodReq = await axios.get(Config.backendEndpoint('/foods'));
@@ -40,11 +42,12 @@ function App() {
       setFoodEntries(foodEntriesReq.data);
     }
     fetchFoodEntries().catch(console.log);
-  }, []);
+  }, [refetchFoodEntries]);
   
   function handleFoodClick(foodId) {
-    return e => {
-      console.log(foodId);
+    return async e => {
+      await axios.post(Config.backendEndpoint('/foods/entries'), { foodId });
+      setRefetchFoodEntries(!refetchFoodEntries);
     };
   }
   
