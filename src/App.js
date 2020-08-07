@@ -42,6 +42,12 @@ function App() {
     fetchFoodEntries().catch(console.log);
   }, []);
   
+  function handleFoodClick(foodId) {
+    return e => {
+      console.log(foodId);
+    };
+  }
+  
   console.log('-----------')
   console.log(foods);
   console.log(nutrients);
@@ -60,7 +66,7 @@ function App() {
         />
       </div>
       <div className={css(styles.container, styles.rightContainer)}>
-        <FoodsGrid foods={foods}/>
+        <FoodsGrid foods={foods} onFoodClick={handleFoodClick}/>
       </div>
     </div>
   );
