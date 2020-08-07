@@ -63,9 +63,18 @@ function NutritionTable(props) {
                   </div>
                 </td>
                 {
-                  nutrients.map((nutrient, nutrientId) => (
-                    <td key={nutrientId} className={css(styles.td)} align={'right'}><Text>{nutrientValues.length > 0 ? nutrientValues.find(x => x.food_id === food.food_id && x.nutrient_id === nutrient.nutrient_id).value : null}</Text></td>
-                  ))
+                  nutrients.map((nutrient, nutrientId) => {
+                    const nutrientValue = nutrientValues.find(x => x.food_id === food.food_id && x.nutrient_id === nutrient.nutrient_id);
+                    return (
+                      <td key={nutrientId} className={css(styles.td)} align={'right'}>
+                        { nutrientValue ?
+                          <Text>{nutrientValues.length > 0 ? nutrientValue.value : null}</Text>
+                          :
+                          null
+                        }
+                      </td>
+                    );
+                  })
                 }
               </tr>
             ))

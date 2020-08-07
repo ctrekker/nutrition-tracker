@@ -11,8 +11,23 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import { makeStyles } from '@material-ui/core/styles';
+import FormHelperText from '@material-ui/core/FormHelperText';
+
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    minWidth: 400,
+    maxWidth: 500,
+  },
+}));
 
 function App() {
+  const classes = useStyles();
+  
   const [ foods, setFoods ] = useState([]);
   const [ nutrients, setNutrients ] = useState([]);
   const [ nutrientValues, setNutrientValues ] = useState([]);
@@ -23,6 +38,9 @@ function App() {
   const [ refetchFoodEntries, setRefetchFoodEntries ] = useState(false);
   
   const [ createFoodOpen, setCreateFoodOpen ] = useState(false);
+  const [ deleteFoodOpen, setDeleteFoodOpen ] = useState(true);
+  
+  const [ deleteFoodId, setDeleteFoodId ] = useState('');
   
   const newFoodNameRef = useRef();
   const newFoodNutrientsRef = useRef({});
@@ -81,10 +99,10 @@ function App() {
     setCreateFoodOpen(false);
   }
   function handleFoodDeleteClick(e) {
-  
+    setDeleteFoodOpen(true);
   }
   function handleFoodDeleteClose(e) {
-  
+    setDeleteFoodOpen(false);
   }
   function handleNutrientCreateClick(e) {
   
@@ -94,7 +112,6 @@ function App() {
   }
   async function handleFoodCreate()  {
     const foodName = newFoodNameRef.current.value;
-    console.log(foodName);
     await axios.post(Config.backendEndpoint('/foods'), {
       name: foodName
     });
@@ -102,10 +119,7 @@ function App() {
     const foodId = foodValuesRes.data.find(x => x.name === foodName).food_id;
     
     const nutrientValues = Object.entries(newFoodNutrientsRef.current).map(x => [x[0], x[1].value]);
-    console.log(nutrientValues);
-    console.log(foodId);
     for(let [nutrientId, nutrientValue] of nutrientValues) {
-      console.log(nutrientId);
       await axios.post(Config.backendEndpoint('/foods/nutrients'), {
         foodId,
         nutrientId,
@@ -117,6 +131,13 @@ function App() {
     setRefetchNutrientValues(!refetchNutrientValues);
     
     handleFoodCreateClose();
+  }
+  async function handleFoodDelete() {
+    await axios.delete(Config.backendEndpoint(`/foods/${deleteFoodId}`));
+    
+    setDeleteFoodId('');
+    setRefetchFoods(!refetchFoods);
+    setDeleteFoodOpen(false);
   }
   
   console.log('-----------')
@@ -143,7 +164,7 @@ function App() {
           <Typography variant={'h5'} gutterBottom>Actions</Typography>
           <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleFoodCreateClick}>Create a new food</Button>
           <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleFoodDeleteClick}>Delete a food</Button>
-          <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleNutrientCreateClick}>Create a new nutrition variable</Button>
+          {/*<Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleNutrientCreateClick}>Create a new nutrition variable</Button>*/}
         </Paper>
       </div>
       {/*<div className={css(styles.container, styles.rightContainer)}>*/}
@@ -170,6 +191,34 @@ function App() {
           </Button>
           <Button onClick={handleFoodCreate} variant={'contained'} color={'primary'}>
             Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={deleteFoodOpen} onClose={handleFoodDeleteClose}>
+        <DialogTitle style={{ paddingBottom: 0 }}>Delete a food type</DialogTitle>
+        <DialogContent>
+          <FormControl className={classes.formControl}>
+            <InputLabel id={'delete-food-type-label'}>Select a food to delete</InputLabel>
+            <Select
+              labelId={'delete-food-type-label'}
+              value={deleteFoodId}
+              onChange={(e) => setDeleteFoodId(e.target.value)}
+            >
+              {
+                foods.map((food, foodKey) => (
+                  <MenuItem key={foodKey} value={food.food_id}>{food.name}</MenuItem>
+                ))
+              }
+            </Select>
+            <FormHelperText>This will prevent future logging of this food item</FormHelperText>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleFoodDeleteClose} variant={'contained'}>
+            Cancel
+          </Button>
+          <Button onClick={handleFoodDelete} variant={'contained'} color={'secondary'} disabled={deleteFoodId === ''}>
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
