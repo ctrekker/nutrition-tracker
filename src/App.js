@@ -10,6 +10,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import TextField from '@material-ui/core/TextField';
+import Paper from '@material-ui/core/Paper';
 
 function App() {
   const [ foods, setFoods ] = useState([]);
@@ -79,6 +80,18 @@ function App() {
   function handleFoodCreateClose() {
     setCreateFoodOpen(false);
   }
+  function handleFoodDeleteClick(e) {
+  
+  }
+  function handleFoodDeleteClose(e) {
+  
+  }
+  function handleNutrientCreateClick(e) {
+  
+  }
+  function handleNutrientCreateClose() {
+  
+  }
   async function handleFoodCreate()  {
     const foodName = newFoodNameRef.current.value;
     console.log(foodName);
@@ -126,6 +139,14 @@ function App() {
           onFoodRemoveClick={handleFoodRemoveClick}
         />
       </div>
+      <div className={css(styles.container, styles.rightContainer)}>
+        <Paper elevation={2} className={css(styles.actionsPaper)}>
+          <Typography variant={'h5'} gutterBottom>Actions</Typography>
+          <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleFoodCreateClick}>Create a new food</Button>
+          <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleFoodDeleteClick}>Delete a food</Button>
+          <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleNutrientCreateClick}>Create a new nutrition variable</Button>
+        </Paper>
+      </div>
       {/*<div className={css(styles.container, styles.rightContainer)}>*/}
       {/*  <FoodsGrid foods={foods} onFoodClick={handleFoodClick} onCreateFoodClick={handleFoodCreateClick}/>*/}
       {/*</div>*/}
@@ -172,6 +193,15 @@ const styles = StyleSheet.create({
   },
   rightContainer: {
     flexGrow: 1
+  },
+  actionsPaper: {
+    padding: '15px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'start'
+  },
+  actionsButton: {
+    marginBottom: '10px'
   },
   nutritionalValuesColumnContainer: {
     marginTop: '15px'
