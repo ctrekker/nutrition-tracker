@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import NutritionTable from './NutritionTable';
 import FoodsGrid from './FoodsGrid';
 import { Typography } from '@material-ui/core';
-import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
 import Config from './Config';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import Button from '@material-ui/core/Button';
+import DialogActions from '@material-ui/core/DialogActions';
+import TextField from '@material-ui/core/TextField';
 
 function App() {
   const [ foods, setFoods ] = useState([]);
@@ -13,7 +18,14 @@ function App() {
   const [ nutrientValues, setNutrientValues ] = useState([]);
   const [ foodEntries, setFoodEntries ] = useState([]);
   
+  const [ refetchFoods, setRefetchFoods ] = useState(false);
+  const [ refetchNutrientValues, setRefetchNutrientValues ] = useState(false);
   const [ refetchFoodEntries, setRefetchFoodEntries ] = useState(false);
+  
+  const [ createFoodOpen, setCreateFoodOpen ] = useState(true);
+  
+  const newFoodNameRef = useRef();
+  const newFoodNutrientsRef = useRef({});
   
   useEffect(() => {
     const fetchFoods = async () => {
@@ -21,7 +33,7 @@ function App() {
       setFoods(foodReq.data);
     }
     fetchFoods().catch(console.log);
-  }, []);
+  }, [refetchFoods]);
   useEffect(() => {
     const fetchNutrients = async () => {
       const nutrientsReq = await axios.get(Config.backendEndpoint('/nutrients'));
@@ -35,7 +47,7 @@ function App() {
       setNutrientValues(nutrientValuesReq.data);
     }
     fetchNutrientValues().catch(console.log);
-  }, []);
+  }, [refetchNutrientValues]);
   useEffect(() => {
     const fetchFoodEntries = async () => {
       const foodEntriesReq = await axios.get(Config.backendEndpoint('/foods/entries'));
@@ -49,6 +61,38 @@ function App() {
       await axios.post(Config.backendEndpoint('/foods/entries'), { foodId });
       setRefetchFoodEntries(!refetchFoodEntries);
     };
+  }
+  function handleFoodCreateClick(e) {
+    setCreateFoodOpen(true);
+  }
+  function handleFoodCreateClose() {
+    setCreateFoodOpen(false);
+  }
+  async function handleFoodCreate()  {
+    const foodName = newFoodNameRef.current.value;
+    console.log(foodName);
+    await axios.post(Config.backendEndpoint('/foods'), {
+      name: foodName
+    });
+    const foodValuesRes = await axios.get(Config.backendEndpoint('/foods/'));
+    const foodId = foodValuesRes.data.find(x => x.name === foodName).food_id;
+    
+    const nutrientValues = Object.entries(newFoodNutrientsRef.current).map(x => [x[0], x[1].value]);
+    console.log(nutrientValues);
+    console.log(foodId);
+    for(let [nutrientId, nutrientValue] of nutrientValues) {
+      console.log(nutrientId);
+      await axios.post(Config.backendEndpoint('/foods/nutrients'), {
+        foodId,
+        nutrientId,
+        value: nutrientValue
+      });
+    }
+    
+    setRefetchFoods(!refetchFoods);
+    setRefetchNutrientValues(!refetchNutrientValues);
+    
+    handleFoodCreateClose();
   }
   
   console.log('-----------')
@@ -69,8 +113,32 @@ function App() {
         />
       </div>
       <div className={css(styles.container, styles.rightContainer)}>
-        <FoodsGrid foods={foods} onFoodClick={handleFoodClick}/>
+        <FoodsGrid foods={foods} onFoodClick={handleFoodClick} onCreateFoodClick={handleFoodCreateClick}/>
       </div>
+      <Dialog open={createFoodOpen} onClose={handleFoodCreateClose}>
+        <DialogTitle>Create a new food item</DialogTitle>
+        <DialogContent>
+          <TextField inputRef={newFoodNameRef} variant={'outlined'} label={'Name of food'} fullWidth/>
+          <div className={css(styles.nutritionalValuesColumnContainer)}>
+            <Typography variant={'subtitle1'}>Nutritional Values</Typography>
+            <div className={css(styles.nutritionalValuesColumn)}>
+              {
+                nutrients.map((nutrient, nutrientKey) => (
+                  <TextField key={nutrientKey} inputRef={el => newFoodNutrientsRef.current[nutrient.nutrient_id] = el} size={'small'} variant={'outlined'} label={nutrient.name} style={{ marginBottom: '4px' }}/>
+                ))
+              }
+            </div>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleFoodCreateClose} variant={'contained'}>
+            Cancel
+          </Button>
+          <Button onClick={handleFoodCreate} variant={'contained'} color={'primary'}>
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
@@ -90,6 +158,13 @@ const styles = StyleSheet.create({
   },
   rightContainer: {
     flexGrow: 1
+  },
+  nutritionalValuesColumnContainer: {
+    marginTop: '15px'
+  },
+  nutritionalValuesColumn: {
+    display: 'flex',
+    flexDirection: 'column'
   }
 });
 

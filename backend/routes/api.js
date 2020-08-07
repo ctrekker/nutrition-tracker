@@ -90,7 +90,7 @@ router.get('/foods', (req, res) => {
   })
 });
 router.post('/foods', (req, res) => {
-  db.run('INSERT INTO foods (user_id, name) VALUES ($userId, $name)', {
+  db.run('INSERT OR IGNORE INTO foods (user_id, name) VALUES ($userId, $name)', {
     $userId: req.query.userId,
     $name: req.body.name
   });
@@ -136,7 +136,7 @@ router.get('/foods/nutrients', (req, res) => {
   });
 });
 router.post('/foods/nutrients', (req, res) => {
-  db.run('INSERT INTO nutrient_values (user_id, food_id, nutrient_id, value) VALUES ($userId, $foodId, $nutrientId, $value)', {
+  db.run('INSERT OR IGNORE INTO nutrient_values (user_id, food_id, nutrient_id, value) VALUES ($userId, $foodId, $nutrientId, $value)', {
     $userId: req.query.userId,
     $foodId: req.body.foodId,
     $nutrientId: req.body.nutrientId,

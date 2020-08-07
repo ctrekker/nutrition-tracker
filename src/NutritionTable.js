@@ -1,15 +1,13 @@
 import React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import Text from './Text';
-import { Paper, TableContainer } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
 
 function NutritionTable(props) {
   const foods = props.foods;
   const nutrients = props.nutrients;
   const nutrientValues = props.nutrientValues;
   const foodEntries = props.foodEntries;
-  
-  console.log(nutrients);
   
   return (
     <Paper elevation={2} className={css(styles.rootPaper)}>
@@ -31,7 +29,7 @@ function NutritionTable(props) {
                 <td className={css(styles.td)}><Text>{foods.find(x => x.food_id === foodEntry.food_id).name}</Text></td>
                 {
                   nutrients.map((nutrient, nutrientId) => (
-                    <td key={nutrientId} className={css(styles.td)} align={'right'}><Text>{nutrientValues.find(x => x.food_id === foodEntry.food_id && x.nutrient_id === nutrient.nutrient_id).value}</Text></td>
+                    <td key={nutrientId} className={css(styles.td)} align={'right'}><Text>{nutrientValues.length > 0 ? nutrientValues.find(x => x.food_id === foodEntry.food_id && x.nutrient_id === nutrient.nutrient_id).value : null}</Text></td>
                   ))
                 }
               </tr>
