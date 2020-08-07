@@ -38,7 +38,7 @@ function App() {
   const [ refetchFoodEntries, setRefetchFoodEntries ] = useState(false);
   
   const [ createFoodOpen, setCreateFoodOpen ] = useState(false);
-  const [ deleteFoodOpen, setDeleteFoodOpen ] = useState(true);
+  const [ deleteFoodOpen, setDeleteFoodOpen ] = useState(false);
   
   const [ deleteFoodId, setDeleteFoodId ] = useState('');
   
