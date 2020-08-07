@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import NutritionTable from './NutritionTable';
-import FoodsGrid from './FoodsGrid';
 import { Typography } from '@material-ui/core';
 import axios from 'axios';
 import Config from './Config';
@@ -22,7 +21,7 @@ function App() {
   const [ refetchNutrientValues, setRefetchNutrientValues ] = useState(false);
   const [ refetchFoodEntries, setRefetchFoodEntries ] = useState(false);
   
-  const [ createFoodOpen, setCreateFoodOpen ] = useState(true);
+  const [ createFoodOpen, setCreateFoodOpen ] = useState(false);
   
   const newFoodNameRef = useRef();
   const newFoodNutrientsRef = useRef({});
@@ -60,6 +59,18 @@ function App() {
     return async e => {
       await axios.post(Config.backendEndpoint('/foods/entries'), { foodId });
       setRefetchFoodEntries(!refetchFoodEntries);
+    };
+  }
+  function handleFoodRemoveClick(foodId) {
+    return async e => {
+      const foodEntryTarget = foodEntries.reverse().find(x => x.food_id === foodId);
+      if(foodEntryTarget) {
+        console.log(foodEntryTarget);
+        const foodEntryId = foodEntryTarget.food_entry_id;
+        console.log(foodEntryId);
+        await axios.delete(Config.backendEndpoint(`/foods/entries/${foodEntryId}`));
+        setRefetchFoodEntries(!refetchFoodEntries);
+      }
     };
   }
   function handleFoodCreateClick(e) {
@@ -110,11 +121,14 @@ function App() {
           nutrients={nutrients}
           nutrientValues={nutrientValues}
           foodEntries={foodEntries}
+          
+          onFoodClick={handleFoodClick}
+          onFoodRemoveClick={handleFoodRemoveClick}
         />
       </div>
-      <div className={css(styles.container, styles.rightContainer)}>
-        <FoodsGrid foods={foods} onFoodClick={handleFoodClick} onCreateFoodClick={handleFoodCreateClick}/>
-      </div>
+      {/*<div className={css(styles.container, styles.rightContainer)}>*/}
+      {/*  <FoodsGrid foods={foods} onFoodClick={handleFoodClick} onCreateFoodClick={handleFoodCreateClick}/>*/}
+      {/*</div>*/}
       <Dialog open={createFoodOpen} onClose={handleFoodCreateClose}>
         <DialogTitle>Create a new food item</DialogTitle>
         <DialogContent>

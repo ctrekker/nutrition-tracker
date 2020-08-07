@@ -82,7 +82,7 @@ router.get('/init', (req, res) => {
 });
 
 router.get('/foods', (req, res) => {
-  db.all('SELECT food_id, name FROM foods WHERE user_id = $userId', {
+  db.all('SELECT food_id, name FROM foods WHERE user_id = $userId ORDER BY food_id', {
     $userId: req.query.userId
   }, (err, rows) => {
     if(err) throw err;
@@ -153,7 +153,7 @@ router.delete('/foods/nutrients/:nutrientValueId', (req, res) => {
 });
 
 router.get('/foods/entries', (req, res) => {
-  db.all('SELECT food_id, entry_date FROM food_entries WHERE user_id = $userId', {
+  db.all('SELECT food_entry_id, food_id, entry_date FROM food_entries WHERE user_id = $userId', {
     $userId: req.query.userId
   }, (err, foodEntries) => {
     if(err) throw err;
@@ -226,7 +226,7 @@ function dbInit() {
     
     db.run(`
     CREATE TABLE IF NOT EXISTS food_entries (
-      nutrient_entry_id INTEGER PRIMARY KEY,
+      food_entry_id INTEGER PRIMARY KEY,
       entry_date DATE DEFAULT (datetime('now')),
       user_id INTEGER,
       food_id INTEGER,
