@@ -9,6 +9,8 @@ function NutritionTable(props) {
   const nutrientValues = props.nutrientValues;
   const foodEntries = props.foodEntries;
   
+  console.log(nutrients);
+  
   return (
     <Paper elevation={2} className={css(styles.rootPaper)}>
       <table className={css(styles.table)}>

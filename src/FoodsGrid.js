@@ -24,7 +24,7 @@ function FoodsGrid(props) {
           foods.map((food, foodKey) => (
             <Grid key={foodKey} item xs={3}>
               <Card className={css(styles.foodCard)}>
-                <CardActionArea>
+                <CardActionArea onClick={props.onFoodClick(food.food_id)}>
                   <CardContent>
                     <Typography variant={'h6'}>{food.name}</Typography>
                   </CardContent>
@@ -37,8 +37,6 @@ function FoodsGrid(props) {
     </div>
   );
 }
-
-FoodsGrid.propTypes = {};
 
 const styles = StyleSheet.create({
   foodCard: {
