@@ -128,7 +128,6 @@ function App() {
   return (
     <div className={css(styles.root)}>
       <div className={css(styles.container, styles.leftContainer)}>
-        <Typography variant={'h5'} gutterBottom>Today's Nutrition Table</Typography>
         <NutritionTable
           foods={foods}
           nutrients={nutrients}

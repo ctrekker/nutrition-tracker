@@ -1,10 +1,21 @@
 import React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import Text from './Text';
-import { Paper } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
+import { Paper, Typography, withStyles } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
+import Fab from '@material-ui/core/Fab';
+
+const SmallFab = withStyles({
+  root: {
+    minHeight: '25px'
+  },
+  sizeSmall: {
+    padding: 0,
+    width: '25px',
+    height: '25px'
+  }
+})(Fab);
 
 function NutritionTable(props) {
   const foods = props.foods;
@@ -24,11 +35,12 @@ function NutritionTable(props) {
   
   return (
     <Paper elevation={2} className={css(styles.rootPaper)}>
+      <Typography variant={'h5'} gutterBottom>Today's Nutrition Table</Typography>
       <table className={css(styles.table)}>
         <thead>
           <tr>
             <th className={css(styles.th)}/>
-            <th className={css(styles.th)}>Today's totals</th>
+            <th className={css(styles.th)}>Quantities</th>
             {
               nutrients.map((nutrient, id) => (
                 <th key={id} className={css(styles.th)}><Text>{nutrient.name}</Text></th>
@@ -43,11 +55,11 @@ function NutritionTable(props) {
                 <td className={css(styles.td)}><Text>{food.name}</Text></td>
                 <td className={css(styles.td)} align={'center'}>
                   <div>
-                    <IconButton size={'small'} color={'primary'} onClick={props.onFoodClick(food.food_id)}><AddIcon/></IconButton>
-                    <span>{
+                    <SmallFab size={'small'} color={'primary'} onClick={props.onFoodClick(food.food_id)}><AddIcon/></SmallFab>
+                    <span className={css(styles.foodTotals)}>{
                       foodEntries.filter(x => x.food_id === food.food_id).length
                     }</span>
-                    <IconButton size={'small'} color={'secondary'} onClick={props.onFoodRemoveClick(food.food_id)}><RemoveIcon/></IconButton>
+                    <SmallFab size={'small'} color={'secondary'} onClick={props.onFoodRemoveClick(food.food_id)}><RemoveIcon/></SmallFab>
                   </div>
                 </td>
                 {
@@ -60,7 +72,7 @@ function NutritionTable(props) {
           }
           <tr>
             <td className={css(styles.bold)}>Total</td>
-            <td className={css(styles.bold)} align={'center'}>{foodEntries.length}</td>
+            <td className={css(styles.bold)} align={'center'}><span className={css(styles.foodTotals)}>{foodEntries.length}</span></td>
             {
               nutrients.map((nutrient, nutrientKey) => (
                 <td key={nutrientKey} align={'right'}>
@@ -94,6 +106,11 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: 'bold'
+  },
+  foodTotals: {
+    fontSize: '14pt',
+    display: 'inline-block',
+    margin: '0 5px'
   }
 });
 
