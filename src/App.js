@@ -45,6 +45,16 @@ function App() {
   const newFoodNameRef = useRef();
   const newFoodNutrientsRef = useRef({});
   
+  const nutrientTotals = {};
+  for(let nutrient of nutrients) {
+    nutrientTotals[nutrient.nutrient_id] = 0;
+    for(let foodEntry of foodEntries) {
+      const nutrientValueEntry = nutrientValues.find(x => x.food_id === foodEntry.food_id && x.nutrient_id === nutrient.nutrient_id);
+      if(!nutrientValueEntry) continue;
+      nutrientTotals[nutrient.nutrient_id] += nutrientValueEntry.value;
+    }
+  }
+  
   useEffect(() => {
     const fetchFoods = async () => {
       const foodReq = await axios.get(Config.backendEndpoint('/foods'));
@@ -153,6 +163,7 @@ function App() {
           foods={foods}
           nutrients={nutrients}
           nutrientValues={nutrientValues}
+          nutrientTotals={nutrientTotals}
           foodEntries={foodEntries}
           
           onFoodClick={handleFoodClick}

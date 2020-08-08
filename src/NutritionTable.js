@@ -21,21 +21,23 @@ function NutritionTable(props) {
   const foods = props.foods;
   const nutrients = props.nutrients;
   const nutrientValues = props.nutrientValues;
+  const nutrientTotals = props.nutrientTotals;
   const foodEntries = props.foodEntries;
-  
-  const nutrientTotals = {};
-  for(let nutrient of nutrients) {
-    nutrientTotals[nutrient.nutrient_id] = 0;
-    for(let foodEntry of foodEntries) {
-      const nutrientValueEntry = nutrientValues.find(x => x.food_id === foodEntry.food_id && x.nutrient_id === nutrient.nutrient_id);
-      if(!nutrientValueEntry) continue;
-      nutrientTotals[nutrient.nutrient_id] += nutrientValueEntry.value;
-    }
-  }
   
   return (
     <Paper elevation={2} className={css(styles.rootPaper)}>
       <Typography variant={'h5'} gutterBottom>Today's Nutrition Table</Typography>
+      <Typography variant={'h6'}>Totals</Typography>
+      <div className={css(styles.totalsContainer)}>
+        {
+          nutrients.map((nutrient, nutrientKey) => (
+            <div key={nutrientKey} className={css(styles.totalsItem)}>
+              <Typography variant={'body1'}>{nutrient.name}</Typography>
+              <Typography variant={'h6'}>{nutrientTotals[nutrient.nutrient_id]}</Typography>
+            </div>
+          ))
+        }
+      </div>
       <table className={css(styles.table)}>
         <thead>
           <tr>
@@ -102,6 +104,16 @@ const styles = StyleSheet.create({
   rootPaper: {
     padding: '15px',
     width: 'fit-content'
+  },
+  totalsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    border: '1px solid #ddd',
+    marginBottom: '8px'
+  },
+  totalsItem: {
+    margin: '5px 0'
   },
   table: {
     borderCollapse: 'collapse'
