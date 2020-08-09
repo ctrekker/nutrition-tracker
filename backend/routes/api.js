@@ -177,6 +177,39 @@ router.delete('/foods/entries/:foodEntryId', (req, res) => {
   res.send('');
 });
 
+router.get('/data.csv', (req, res) => {
+  db.get(`
+SELECT 'Date,' || GROUP_CONCAT('"' || g.name || '"') || x'0a' || f.data AS csv
+FROM (
+         SELECT GROUP_CONCAT(e.row, x'0a') AS data
+         FROM (
+                  SELECT (STRFTIME('%m/%d/%Y', d.entry_date) || ',' || GROUP_CONCAT(d.nutrient_sum)) AS row
+                  FROM (
+                           SELECT a.entry_date, b.nutrient_id, sum(value) AS nutrient_sum
+                           FROM (SELECT entry_date, food_id FROM food_entries WHERE user_id = $userId) a,
+                                (SELECT value, food_id, nutrient_id FROM nutrient_values) b
+                           WHERE a.food_id = b.food_id
+                           GROUP BY strftime('%d-%m-%Y', a.entry_date), b.nutrient_id
+                       ) d
+                  GROUP BY entry_date
+              ) e
+     ) f,
+     (
+         SELECT name, nutrient_id
+         FROM nutrients
+         ORDER BY nutrient_id
+     ) g;`,
+    {
+      $userId: req.query.userId
+    }, (err, row) => {
+      if(err) throw err;
+    
+      res.set('Cache-Control', 'no-store');
+      res.set('Content-Type', 'application/csv-downloadable');
+      res.send(row['csv']);
+    });
+});
+
 function dbInit() {
   db.serialize(() => {
     db.run(`

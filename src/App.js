@@ -18,6 +18,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import moment from 'moment';
+import GetAppIcon from '@material-ui/icons/GetApp';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -186,6 +187,7 @@ function App() {
           <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleFoodCreateClick}>Create a new food</Button>
           <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleFoodDeleteClick}>Delete a food</Button>
           {/*<Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} onClick={handleNutrientCreateClick}>Create a new nutrition variable</Button>*/}
+          <Button variant={'contained'} color={'primary'} className={css(styles.actionsButton)} startIcon={<GetAppIcon/>} href={Config.backendEndpoint('/data.csv')} target={'_blank'}>Download Data</Button>
         </Paper>
       </div>
       {/*<div className={css(styles.container, styles.rightContainer)}>*/}
