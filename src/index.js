@@ -6,9 +6,6 @@ import * as serviceWorker from './serviceWorker';
 import Config from './Config';
 import axios from 'axios';
 
-import MomentUtils from '@date-io/moment';
-import MuiPickersUtilsProvider from '@material-ui/pickers/MuiPickersUtilsProvider';
-
 async function renderApp() {
   let userToken = localStorage.getItem('userToken');
   if(!userToken) {
@@ -22,9 +19,7 @@ async function renderApp() {
   
   ReactDOM.render(
     <React.StrictMode>
-      <MuiPickersUtilsProvider utils={MomentUtils}>
-        <App />
-      </MuiPickersUtilsProvider>
+      <App />
     </React.StrictMode>,
     document.getElementById('root')
   );

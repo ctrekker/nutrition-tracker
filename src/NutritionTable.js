@@ -5,7 +5,10 @@ import { Paper, Typography, withStyles } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import Fab from '@material-ui/core/Fab';
-
+import { DatePicker, LocalizationProvider } from '@material-ui/pickers';
+import MomentUtils from '@material-ui/pickers/adapter/moment';
+import moment from 'moment';
+import TextField from '@material-ui/core/TextField';
 const SmallFab = withStyles({
   root: {
     minHeight: '25px'
@@ -23,10 +26,34 @@ function NutritionTable(props) {
   const nutrientValues = props.nutrientValues;
   const nutrientTotals = props.nutrientTotals;
   const foodEntries = props.foodEntries;
+  const currentDate = props.currentDate;
+  
+  const isToday = moment().isSame(currentDate, 'day');
+  
+  let displayDate = currentDate.format('M/D/YYYY');
+  if(moment().add(1, 'day').isSame(currentDate, 'day')) {
+    displayDate = 'Tomorrow\'s';
+  }
+  else if(moment().subtract(1, 'day').isSame(currentDate, 'day')) {
+    displayDate = 'Yesterday\'s';
+  }
+  else if(moment().isSame(currentDate, 'day')) {
+    displayDate = 'Today\'s';
+  }
   
   return (
     <Paper elevation={2} className={css(styles.rootPaper)}>
-      <Typography variant={'h5'} gutterBottom>Today's Nutrition Table</Typography>
+      <div className={css(styles.headers)}>
+        <Typography variant={'h5'} gutterBottom>{displayDate} Nutrition Table</Typography>
+        <div style={{ flexGrow: 1 }}/>
+        <LocalizationProvider dateAdapter={MomentUtils}>
+          <DatePicker
+            renderInput={(props) => <TextField {...props} />}
+            value={currentDate}
+            onChange={(date) => props.onDateChange(date)}
+          />
+        </LocalizationProvider>
+      </div>
       <Typography variant={'h6'}>Totals</Typography>
       <div className={css(styles.totalsContainer)}>
         {
@@ -57,11 +84,15 @@ function NutritionTable(props) {
                 <td className={css(styles.td)}><Text>{food.name}</Text></td>
                 <td className={css(styles.td)} align={'center'}>
                   <div>
-                    <SmallFab size={'small'} color={'primary'} onClick={props.onFoodClick(food.food_id)}><AddIcon/></SmallFab>
+                    { isToday &&
+                      <SmallFab size={'small'} color={'primary'} onClick={props.onFoodClick(food.food_id)}><AddIcon/></SmallFab>
+                    }
                     <span className={css(styles.foodTotals)}>{
                       foodEntries.filter(x => x.food_id === food.food_id).length
                     }</span>
-                    <SmallFab size={'small'} color={'secondary'} onClick={props.onFoodRemoveClick(food.food_id)}><RemoveIcon/></SmallFab>
+                    { isToday &&
+                      <SmallFab size={'small'} color={'secondary'} onClick={props.onFoodRemoveClick(food.food_id)}><RemoveIcon/></SmallFab>
+                    }
                   </div>
                 </td>
                 {
@@ -104,6 +135,9 @@ const styles = StyleSheet.create({
   rootPaper: {
     padding: '15px',
     width: 'fit-content'
+  },
+  headers: {
+    display: 'flex'
   },
   totalsContainer: {
     display: 'flex',

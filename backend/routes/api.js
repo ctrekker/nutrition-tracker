@@ -153,8 +153,10 @@ router.delete('/foods/nutrients/:nutrientValueId', (req, res) => {
 });
 
 router.get('/foods/entries', (req, res) => {
-  db.all('SELECT food_entry_id, food_id, entry_date FROM food_entries WHERE user_id = $userId', {
-    $userId: req.query.userId
+  db.all('SELECT food_entry_id, food_id, entry_date FROM food_entries WHERE user_id = $userId AND entry_date > datetime($startDate, \'unixepoch\') and entry_date < datetime($endDate, \'unixepoch\')', {
+    $userId: req.query.userId,
+    $startDate: parseInt(req.query.start) / 1000,
+    $endDate: parseInt(req.query.end) / 1000
   }, (err, foodEntries) => {
     if(err) throw err;
     res.json(foodEntries);

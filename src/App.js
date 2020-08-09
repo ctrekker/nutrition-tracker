@@ -17,6 +17,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import moment from 'moment';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -32,6 +33,7 @@ function App() {
   const [ nutrients, setNutrients ] = useState([]);
   const [ nutrientValues, setNutrientValues ] = useState([]);
   const [ foodEntries, setFoodEntries ] = useState([]);
+  const [ currentDate, setCurrentDate ] = useState(moment());
   
   const [ refetchFoods, setRefetchFoods ] = useState(false);
   const [ refetchNutrientValues, setRefetchNutrientValues ] = useState(false);
@@ -78,11 +80,13 @@ function App() {
   }, [refetchNutrientValues]);
   useEffect(() => {
     const fetchFoodEntries = async () => {
-      const foodEntriesReq = await axios.get(Config.backendEndpoint('/foods/entries'));
+      const dayStart = currentDate.startOf('day').valueOf();
+      const dayEnd = currentDate.endOf('day').valueOf();
+      const foodEntriesReq = await axios.get(Config.backendEndpoint(`/foods/entries?start=${dayStart}&end=${dayEnd}`));
       setFoodEntries(foodEntriesReq.data);
     }
     fetchFoodEntries().catch(console.log);
-  }, [refetchFoodEntries]);
+  }, [refetchFoodEntries, currentDate]);
   
   function handleFoodClick(foodId) {
     return async e => {
@@ -165,9 +169,15 @@ function App() {
           nutrientValues={nutrientValues}
           nutrientTotals={nutrientTotals}
           foodEntries={foodEntries}
+          currentDate={currentDate}
           
           onFoodClick={handleFoodClick}
           onFoodRemoveClick={handleFoodRemoveClick}
+          onDateChange={(date) => {
+            if(date.isValid()) {
+              setCurrentDate(date)
+            }
+          }}
         />
       </div>
       <div className={css(styles.container, styles.rightContainer)}>
