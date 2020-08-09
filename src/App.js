@@ -19,6 +19,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import moment from 'moment';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import DialogContentText from '@material-ui/core/DialogContentText';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -42,11 +43,13 @@ function App() {
   
   const [ createFoodOpen, setCreateFoodOpen ] = useState(false);
   const [ deleteFoodOpen, setDeleteFoodOpen ] = useState(false);
+  const [ userRecoveryOpen, setUserRecoveryOpen ] = useState(false);
   
   const [ deleteFoodId, setDeleteFoodId ] = useState('');
   
   const newFoodNameRef = useRef();
   const newFoodNutrientsRef = useRef({});
+  const userTokenRef = useRef();
   
   const nutrientTotals = {};
   for(let nutrient of nutrients) {
@@ -58,6 +61,12 @@ function App() {
     }
   }
   
+  useEffect(() => {
+    window.addEventListener('click', handleUserRecoveryClick);
+    return () => {
+      window.removeEventListener('click', handleUserRecoveryClick);
+    }
+  }, []);
   useEffect(() => {
     const fetchFoods = async () => {
       const foodReq = await axios.get(Config.backendEndpoint('/foods'));
@@ -125,6 +134,20 @@ function App() {
   function handleNutrientCreateClose() {
   
   }
+  function handleUserRecoveryClick(e) {
+    if(e.screenX < 5 || e.clientX < 5) {
+      setUserRecoveryOpen(true);
+    }
+  }
+  function handleUserRecoveryClose() {
+    setUserRecoveryOpen(false);
+  }
+  function handleUserRecovery() {
+    const tokenValue = userTokenRef.current.value;
+    localStorage.setItem('userToken', tokenValue);
+    window.location = '';
+  }
+  
   async function handleFoodCreate()  {
     const foodName = newFoodNameRef.current.value;
     await axios.post(Config.backendEndpoint('/foods'), {
@@ -242,6 +265,21 @@ function App() {
           </Button>
           <Button onClick={handleFoodDelete} variant={'contained'} color={'secondary'} disabled={deleteFoodId === ''}>
             Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={userRecoveryOpen} onClose={handleUserRecoveryClose}>
+        <DialogTitle>Recover User Data</DialogTitle>
+        <DialogContent>
+          <DialogContentText>If this was opened by accident, just press "Cancel"</DialogContentText>
+          <TextField inputRef={userTokenRef} label={'User Token'}/>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleUserRecoveryClose} variant={'contained'}>
+            Cancel
+          </Button>
+          <Button onClick={handleUserRecovery} variant={'contained'} color={'primary'}>
+            Recover
           </Button>
         </DialogActions>
       </Dialog>
