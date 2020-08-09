@@ -258,10 +258,12 @@ const styles = StyleSheet.create({
     padding: '20px'
   },
   leftContainer: {
-    borderRight: '1px solid #dadada'
+    borderRight: '1px solid #dadada',
+    flexGrow: 1,
+    display: 'flex'
   },
   rightContainer: {
-    flexGrow: 1
+    flexGrow: 0
   },
   actionsPaper: {
     padding: '15px',

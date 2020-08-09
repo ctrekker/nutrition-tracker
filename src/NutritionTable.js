@@ -134,7 +134,8 @@ NutritionTable.propTypes = {};
 const styles = StyleSheet.create({
   rootPaper: {
     padding: '15px',
-    width: 'fit-content'
+    width: 'fit-content',
+    flexGrow: 1
   },
   headers: {
     display: 'flex'
@@ -150,7 +151,8 @@ const styles = StyleSheet.create({
     margin: '5px 0'
   },
   table: {
-    borderCollapse: 'collapse'
+    borderCollapse: 'collapse',
+    width: '100%'
   },
   th: {
     borderBottom: '1px solid #ddd',
