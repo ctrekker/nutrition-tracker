@@ -128,12 +128,6 @@ function App() {
   function handleFoodDeleteClose(e) {
     setDeleteFoodOpen(false);
   }
-  function handleNutrientCreateClick(e) {
-  
-  }
-  function handleNutrientCreateClose() {
-  
-  }
   function handleUserRecoveryClick(e) {
     if(e.screenX < 5 || e.clientX < 5) {
       setUserRecoveryOpen(true);
