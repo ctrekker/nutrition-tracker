@@ -42,41 +42,13 @@ router.post('/users', (req, res) => {
   db.run('INSERT INTO users (token) VALUES ($token)', {
     $token: userToken
   });
-  res.send(userToken);
+  initWithValues(userToken, () => {
+    res.send(userToken);
+  });
 });
 
 router.get('/init', (req, res) => {
-  db.serialize(() => {
-    // Insert foods
-    const foodStmt = db.prepare('INSERT OR IGNORE INTO foods (user_id, name) VALUES(?, ?)');
-    for(let foodName of Object.keys(initValues)) {
-      foodStmt.run(req.query.userId, foodName);
-    }
-    foodStmt.finalize();
-    
-    // Insert nutrients
-    const nutrientStmt = db.prepare('INSERT OR IGNORE INTO nutrients (user_id, name) VALUES(?, ?)');
-    for(let nutrientName of initNutrients) {
-      nutrientStmt.run(req.query.userId, nutrientName);
-    }
-    nutrientStmt.finalize();
-    
-    // Insert nutrient values
-    db.all('SELECT food_id, name FROM foods WHERE user_id = $userId', { $userId: req.query.userId }, (err, foodEntries) => {
-      if(err) throw err;
-      db.all('SELECT nutrient_id, name FROM nutrients WHERE user_id = $userId', { $userId: req.query.userId }, (err2, nutrientEntries) => {
-        if(err2) throw err2;
-        const stmt = db.prepare('INSERT OR IGNORE INTO nutrient_values (user_id, food_id, nutrient_id, value) VALUES (?, ?, ?, ?)');
-        for(let [foodName, nutrientValues] of Object.entries(initValues)) {
-          const foodId = foodEntries.find(x => x.name === foodName).food_id;
-          for(let nutrientName of initNutrients) {
-            const nutrientId = nutrientEntries.find(x => x.name === nutrientName).nutrient_id;
-            stmt.run(req.query.userId, foodId, nutrientId, nutrientValues[initNutrients.indexOf(nutrientName)]);
-          }
-        }
-      });
-    });
-    
+  initWithValues(req.query.userId, () => {
     res.send('');
   });
 });
@@ -271,6 +243,44 @@ function dbInit() {
         REFERENCES foods (food_id)
     )
     `);
+  });
+}
+
+function initWithValues(userId, callback) {
+  db.serialize(() => {
+    // Insert foods
+    const foodStmt = db.prepare('INSERT OR IGNORE INTO foods (user_id, name) VALUES(?, ?)');
+    for(let foodName of Object.keys(initValues)) {
+      foodStmt.run(userId, foodName);
+    }
+    foodStmt.finalize();
+    
+    // Insert nutrients
+    const nutrientStmt = db.prepare('INSERT OR IGNORE INTO nutrients (user_id, name) VALUES(?, ?)');
+    for(let nutrientName of initNutrients) {
+      nutrientStmt.run(userId, nutrientName);
+    }
+    nutrientStmt.finalize();
+    
+    // Insert nutrient values
+    db.all('SELECT food_id, name FROM foods WHERE user_id = $userId', { $userId: userId }, (err, foodEntries) => {
+      if(err) throw err;
+      db.all('SELECT nutrient_id, name FROM nutrients WHERE user_id = $userId', { $userId: userId }, (err2, nutrientEntries) => {
+        if(err2) throw err2;
+        const stmt = db.prepare('INSERT OR IGNORE INTO nutrient_values (user_id, food_id, nutrient_id, value) VALUES (?, ?, ?, ?)');
+        for(let [foodName, nutrientValues] of Object.entries(initValues)) {
+          const foodId = foodEntries.find(x => x.name === foodName).food_id;
+          for(let nutrientName of initNutrients) {
+            const nutrientId = nutrientEntries.find(x => x.name === nutrientName).nutrient_id;
+            stmt.run(userId, foodId, nutrientId, nutrientValues[initNutrients.indexOf(nutrientName)]);
+          }
+        }
+      });
+    });
+    
+    setTimeout(() => {
+      callback();
+    }, 2500);
   });
 }
 
