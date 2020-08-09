@@ -7,17 +7,26 @@ const cors = require('cors');
 
 const apiRouter = require('./routes/api');
 
+const env = process.env.NODE_ENV || 'development';
+
 const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'twig');
 
-app.use(cors());
+if(env === 'development') {
+  app.use(cors());
+}
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+if(env === 'production') {
+  console.log(path.join(__dirname, '../build'))
+  app.use(express.static(path.join(__dirname, '../build')));
+}
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', apiRouter);
