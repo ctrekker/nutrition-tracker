@@ -7,7 +7,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/pickers": "^4.0.0-alpha.12",
     "@testing-library/jest-dom": "^5.11.3",
-    "@testing-library/react": "^10.4.8",
+    "@testing-library/react": "^10.4.9",
     "@testing-library/user-event": "^12.1.1",
     "aphrodite": "^2.4.0",
     "axios": "^0.20.0",
