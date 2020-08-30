@@ -105,7 +105,7 @@ function onError(error) {
  */
 
 function onListening() {
-  const addr = server.address();
+  const addr = (process.env.NODE_ENV === 'production' ? sslServer : server).address();
   const bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
