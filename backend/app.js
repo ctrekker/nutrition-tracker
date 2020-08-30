@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 if(env === 'production') {
-  console.log(path.join(__dirname, '../build'))
+  console.log(path.join(__dirname, '../build'));
   app.use(express.static(path.join(__dirname, '../build')));
 }
 app.use(express.static(path.join(__dirname, 'public')));
