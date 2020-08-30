@@ -39,8 +39,9 @@ router.get('/', (req, res) => {
 
 router.post('/users', (req, res) => {
   const userToken = shortid.generate();
-  db.run('INSERT INTO users (token) VALUES ($token)', {
-    $token: userToken
+  db.run('INSERT INTO users (token, ip) VALUES ($token, $ip)', {
+    $token: userToken,
+    $ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress
   });
   initWithValues(userToken, () => {
     res.send(userToken);
@@ -189,6 +190,7 @@ function dbInit() {
     CREATE TABLE IF NOT EXISTS users (
       user_id INTEGER PRIMARY KEY,
       token TEXT NOT NULL,
+      ip TEXT,
       UNIQUE (token)
     )
     `);
