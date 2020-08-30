@@ -129,7 +129,7 @@ function App() {
     setDeleteFoodOpen(false);
   }
   function handleUserRecoveryClick(e) {
-    if(e.screenX < 5 || e.clientX < 5) {
+    if(e.clientX < 5) {
       setUserRecoveryOpen(true);
     }
   }
