@@ -172,12 +172,6 @@ function App() {
     setDeleteFoodOpen(false);
   }
   
-  console.log('-----------')
-  console.log(foods);
-  console.log(nutrients);
-  console.log(nutrientValues);
-  console.log(foodEntries);
-  
   return (
     <div className={css(styles.root)}>
       <div className={css(styles.container, styles.leftContainer)}>
@@ -192,7 +186,7 @@ function App() {
           onFoodClick={handleFoodClick}
           onFoodRemoveClick={handleFoodRemoveClick}
           onDateChange={(date) => {
-            if(date.isValid()) {
+            if(date && date.isValid()) {
               setCurrentDate(date)
             }
           }}
