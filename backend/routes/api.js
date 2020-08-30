@@ -167,8 +167,9 @@ FROM (
               ) e
      ) f,
      (
-         SELECT name, nutrient_id
+         SELECT name, nutrient_id, user_id
          FROM nutrients
+         WHERE user_id = $userId
          ORDER BY nutrient_id
      ) g;`,
     {
