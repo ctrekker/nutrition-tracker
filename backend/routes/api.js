@@ -154,7 +154,7 @@ router.delete('/foods/entries/:foodEntryId', (req, res) => {
 });
 
 router.get('/foods/categories', (req, res) => {
-  db.all('SELECT food_category_id, `name` FROM food_categories WHERE user_id = $userId', {
+  db.all('SELECT food_category_id, `name` FROM food_categories WHERE user_id = $userId ORDER BY food_category_id ASC', {
     $userId: req.query.userId
   }, (err, foodCategories) => {
     if(err) throw err;

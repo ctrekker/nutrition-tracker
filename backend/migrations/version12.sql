@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS food_categories (
     food_category_id INTEGER PRIMARY KEY,
     user_id INTEGER,
     name TEXT NOT NULL,
+    UNIQUE (user_id, name),
     FOREIGN KEY (user_id)
         REFERENCES users (user_id)
 );
