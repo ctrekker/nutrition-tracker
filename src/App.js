@@ -58,13 +58,30 @@ function App() {
   
   const nutrientTotals = {};
   for(let nutrient of nutrients) {
-    nutrientTotals[nutrient.nutrient_id] = 0;
+    for(let foodCategory of foodCategories) {
+      if(!nutrientTotals[foodCategory.name]) {
+        nutrientTotals[foodCategory.name] = {};
+      }
+      nutrientTotals[foodCategory.name][nutrient.nutrient_id] = 0;
+      for(let foodEntry of foodEntries) {
+        const nutrientValueEntry = nutrientValues.find(x => x.food_id === foodEntry.food_id && x.nutrient_id === nutrient.nutrient_id && foodEntry.food_category_id === foodCategory.food_category_id);
+        if(!nutrientValueEntry) continue;
+        nutrientTotals[foodCategory.name][nutrient.nutrient_id] += nutrientValueEntry.value;
+      }
+    }
+    
+    if(!nutrientTotals['Total']) {
+      nutrientTotals['Total'] = {};
+    }
+    nutrientTotals['Total'][nutrient.nutrient_id] = 0;
     for(let foodEntry of foodEntries) {
       const nutrientValueEntry = nutrientValues.find(x => x.food_id === foodEntry.food_id && x.nutrient_id === nutrient.nutrient_id);
       if(!nutrientValueEntry) continue;
-      nutrientTotals[nutrient.nutrient_id] += nutrientValueEntry.value;
+      console.log(nutrientValueEntry);
+      nutrientTotals['Total'][nutrient.nutrient_id] += nutrientValueEntry.value;
     }
   }
+  console.log(nutrientTotals);
   
   useEffect(() => {
     window.addEventListener('click', handleUserRecoveryClick);
@@ -214,6 +231,7 @@ function App() {
           nutrientValues={nutrientValues}
           nutrientTotals={nutrientTotals}
           foodEntries={foodEntries}
+          foodCategories={foodCategories}
           currentDate={currentDate}
           
           onFoodClick={handleFoodClick}

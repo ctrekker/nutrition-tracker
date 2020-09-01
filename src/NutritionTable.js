@@ -26,6 +26,7 @@ function NutritionTable(props) {
   const nutrientValues = props.nutrientValues;
   const nutrientTotals = props.nutrientTotals;
   const foodEntries = props.foodEntries;
+  const foodCategories = props.foodCategories;
   const currentDate = props.currentDate;
   
   const isToday = moment().isSame(currentDate, 'day');
@@ -56,14 +57,44 @@ function NutritionTable(props) {
       </div>
       <Typography variant={'h6'}>Totals</Typography>
       <div className={css(styles.totalsContainer)}>
-        {
-          nutrients.map((nutrient, nutrientKey) => (
-            <div key={nutrientKey} className={css(styles.totalsItem)}>
-              <Typography variant={'body1'}>{nutrient.name}</Typography>
-              <Typography variant={'h6'}>{nutrientTotals[nutrient.nutrient_id]}</Typography>
-            </div>
-          ))
-        }
+        <table className={css(styles.totalsTable)}>
+          <tbody>
+            <tr>
+              <td/>
+              {
+                nutrients.map((nutrient, nutrientKey) => (
+                  <td key={nutrientKey}>
+                    <Typography variant={'body1'}>{nutrient.name}</Typography>
+                  </td>
+                ))
+              }
+            </tr>
+            <tr>
+              <td><span className={css(styles.totalsCategoryHeader)}>All Today</span></td>
+              {
+                nutrients.map((nutrient, nutrientKey) => (
+                  <td key={nutrientKey} className={css(styles.totalsItem)}>
+                    <Typography variant={'h6'}>{nutrientTotals['Total'] && nutrientTotals['Total'][nutrient.nutrient_id]}</Typography>
+                  </td>
+                ))
+              }
+            </tr>
+            {
+              Object.entries(nutrientTotals).filter(([key, value]) => key !== 'Total').map(([totalKey, totalValues], i) => (
+                <tr key={i}>
+                  <td><span className={css(styles.totalsCategoryHeader)}>{totalKey}</span></td>
+                  {
+                    nutrients.map((nutrient, nutrientKey) => (
+                      <td key={nutrientKey} className={css(styles.totalsItem)}>
+                        <Typography variant={'h6'}>{totalValues[nutrient.nutrient_id]}</Typography>
+                      </td>
+                    ))
+                  }
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
       </div>
       <table className={css(styles.table)}>
         <thead>
@@ -112,17 +143,21 @@ function NutritionTable(props) {
               </tr>
             ))
           }
-          <tr>
-            <td className={css(styles.bold)}>Total</td>
-            <td className={css(styles.bold)} align={'center'}><span className={css(styles.foodTotals)}>{foodEntries.length}</span></td>
-            {
-              nutrients.map((nutrient, nutrientKey) => (
-                <td key={nutrientKey} align={'right'}>
-                  <Text bold>{nutrientTotals[nutrient.nutrient_id]}</Text>
-                </td>
-              ))
-            }
-          </tr>
+          {
+            Object.entries(nutrientTotals).map(([totalKey, totalValues], i) => (
+              <tr key={i}>
+                <td className={css(styles.bold)}>{ totalKey }</td>
+                <td className={css(styles.bold)} align={'center'}><span className={css(styles.foodTotals)}>{totalKey === 'Total' ? foodEntries.length : foodEntries.filter(x => x.food_category_id === foodCategories.find(y => y.name === totalKey).food_category_id).length}</span></td>
+                {
+                  nutrients.map((nutrient, nutrientKey) => (
+                    <td key={nutrientKey} align={'right'}>
+                      <Text bold>{totalValues[nutrient.nutrient_id]}</Text>
+                    </td>
+                  ))
+                }
+              </tr>
+            ))
+          }
         </tbody>
       </table>
     </Paper>
@@ -141,11 +176,21 @@ const styles = StyleSheet.create({
     display: 'flex'
   },
   totalsContainer: {
+    border: '1px solid #ddd',
+    marginBottom: '8px'
+  },
+  totalsTable: {
+    width: '100%'
+  },
+  totalsCategoryHeader: {
+    display: 'block',
+    marginLeft: '5px',
+    fontWeight: 'bold'
+  },
+  totalsCategoryContainer: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-around',
-    border: '1px solid #ddd',
-    marginBottom: '8px'
   },
   totalsItem: {
     margin: '5px 0'
