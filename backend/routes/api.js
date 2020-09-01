@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const shortid = require('shortid');
+const fs = require('fs');
+const path = require('path');
 
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('state.db');
+const db = require('../db');
 
 dbInit();
 
@@ -246,6 +247,32 @@ function dbInit() {
         REFERENCES foods (food_id)
     )
     `);
+    
+    const migrationCacheFile = '.migration_cache.json';
+    if(!fs.existsSync(migrationCacheFile)) {
+      fs.writeFileSync(migrationCacheFile, '[]');
+    }
+    if(!fs.existsSync('migration_backups')) {
+      fs.mkdirSync('migration_backups');
+    }
+    const migrationCache = JSON.parse(fs.readFileSync(migrationCacheFile).toString());
+    const migrationsRoot = './migrations';
+    const files = fs.readdirSync(migrationsRoot);
+    for(let file of files) {
+      if(!migrationCache.includes(file)) {
+        console.log('Migrating ' + file);
+        migrationCache.push(file);
+        // Save a backup
+        fs.copyFileSync('state.db', `migration_backups/state-before-${file.split('.')[0]}.db`)
+        
+        // Execute a very specifically formatted sql file
+        const statements = fs.readFileSync(path.join(migrationsRoot, file)).toString().split(';');
+        for(let statement of statements) {
+          db.run(statement);
+        }
+      }
+    }
+    fs.writeFileSync(migrationCacheFile, JSON.stringify(migrationCache));
   });
 }
 
