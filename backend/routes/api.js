@@ -33,6 +33,7 @@ const initValues = {
   'Builders bar 1/2': [100, 145, 106, 23, 4, 15, 10, 15],
   'Cheese stick, CJ, Sargento, low fat': [120, 70, 10, 150, 0, 15, 6, 0],
 };
+const initFoodCategories = ['Breakfast', 'Lunch', 'Dinner'];
 
 router.get('/', (req, res) => {
   res.send('API v1.0 root');
@@ -127,7 +128,7 @@ router.delete('/foods/nutrients/:nutrientValueId', (req, res) => {
 });
 
 router.get('/foods/entries', (req, res) => {
-  db.all('SELECT food_entry_id, food_id, entry_date FROM food_entries WHERE user_id = $userId AND entry_date > datetime($startDate, \'unixepoch\') and entry_date < datetime($endDate, \'unixepoch\')', {
+  db.all('SELECT food_entry_id, food_id, food_category_id, entry_date FROM food_entries WHERE user_id = $userId AND entry_date > datetime($startDate, \'unixepoch\') and entry_date < datetime($endDate, \'unixepoch\')', {
     $userId: req.query.userId,
     $startDate: parseInt(req.query.start) / 1000,
     $endDate: parseInt(req.query.end) / 1000
@@ -137,9 +138,10 @@ router.get('/foods/entries', (req, res) => {
   });
 });
 router.post('/foods/entries', (req, res) => {
-  db.run('INSERT INTO food_entries (user_id, food_id) VALUES ($userId, $foodId)', {
+  db.run('INSERT INTO food_entries (user_id, food_id, food_category_id) VALUES ($userId, $foodId, $foodCategoryId)', {
     $userId: req.query.userId,
-    $foodId: req.body.foodId
+    $foodId: req.body.foodId,
+    $foodCategoryId: req.body.foodCategoryId || null
   });
   res.send('');
 });
@@ -147,6 +149,42 @@ router.delete('/foods/entries/:foodEntryId', (req, res) => {
   db.run('DELETE FROM food_entries WHERE user_id = $userId AND food_entry_id = $foodEntryId', {
     $userId: req.query.userId,
     $foodEntryId: req.params.foodEntryId
+  });
+  res.send('');
+});
+
+router.get('/foods/categories', (req, res) => {
+  db.all('SELECT food_category_id, `name` FROM food_categories WHERE user_id = $userId', {
+    $userId: req.query.userId
+  }, (err, foodCategories) => {
+    if(err) throw err;
+    if(foodCategories.length === 0) {
+      db.serialize(() => {
+        for(let foodCategory of initFoodCategories) {
+          db.run('INSERT INTO food_categories (user_id, `name`) VALUES ($userId, $name)', {
+            $userId: req.query.userId,
+            $name: foodCategory
+          });
+        }
+      });
+    }
+    res.json(foodCategories.length !== 0 ? foodCategories : initFoodCategories.map((x, i) => ({
+      food_category_id: i,
+      name: x
+    })));
+  });
+});
+router.post('/foods/categories', (req, res) => {
+  db.run('INSERT INTO food_categories (user_id, `name`) VALUES ($userId, $name)', {
+    $userId: req.query.userId,
+    $name: req.body.name
+  });
+  res.send('');
+});
+router.delete('/foods/categories/:foodCategoryId', (req, res) => {
+  db.run('DELETE FROM food_categories WHERE user_id = $userId AND food_category_id = $foodCategoryId', {
+    $userId: req.query.userId,
+    $foodCategoryId: req.params.foodCategoryId
   });
   res.send('');
 });
