@@ -11,7 +11,7 @@
     "@testing-library/user-event": "^12.1.4",
     "aphrodite": "^2.4.0",
     "axios": "^0.20.0",
-    "moment": "^2.27.0",
+    "moment": "^2.28.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3"
